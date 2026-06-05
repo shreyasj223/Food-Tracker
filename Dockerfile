@@ -18,15 +18,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Upgrade pip
 RUN pip install --no-cache-dir --upgrade pip
 
-# Install dependencies using standard pip (failsafe for HF build nodes)
+# Install CPU-only PyTorch and torchvision first (extremely small, ~150MB vs 2.6GB)
+RUN pip install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cpu
+
+# Install remaining dependencies
 RUN pip install --no-cache-dir \
     fastapi \
     uvicorn \
     python-multipart \
     ultralytics \
     transformers \
-    torch \
-    torchvision \
     pillow \
     numpy
 
