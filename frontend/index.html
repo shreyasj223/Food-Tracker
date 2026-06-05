@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Food Photo Calorie & Macro Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header>
+            <div class="brand">
+                <i class="fa-solid fa-shrimp logo-icon"></i>
+                <div>
+                    <h1>NutriLens AI</h1>
+                    <p style="font-size: 0.8rem; color: var(--text-muted);">Smart Food Photo Calorie & Macro Tracker</p>
+                </div>
+            </div>
+            <div class="date-badge" id="current-date">
+                <i class="fa-regular fa-calendar-days" style="margin-right: 0.5rem;"></i>Tuesday, June 2, 2026
+            </div>
+        </header>
+
+        <!-- Main Content Grid -->
+        <div class="dashboard-grid">
+            
+            <!-- Left Column: Input and Analysis -->
+            <div class="input-section">
+                <!-- Media Input Card -->
+                <div class="card">
+                    <h2 class="card-title">
+                        <i class="fa-solid fa-camera" style="color: var(--color-accent);"></i>
+                        Capture or Upload Meal
+                    </h2>
+                    
+                    <div class="media-control-tabs">
+                        <button class="tab-btn active" id="tab-upload">
+                            <i class="fa-solid fa-file-arrow-up"></i> Upload Image
+                        </button>
+                        <button class="tab-btn" id="tab-camera">
+                            <i class="fa-solid fa-video"></i> Live Camera
+                        </button>
+                    </div>
+
+                    <!-- Viewport for camera / file drops -->
+                    <div class="viewport-container" id="viewport">
+                        <!-- Scanning animation -->
+                        <div class="scan-line" id="scanner"></div>
+
+                        <!-- Loading overlay -->
+                        <div class="spinner-container" id="loader">
+                            <div class="spinner"></div>
+                            <p class="loading-text" id="loader-msg">Processing Image...</p>
+                        </div>
+
+                        <!-- 1. Drag & Drop Upload Placeholder -->
+                        <div class="upload-placeholder" id="upload-placeholder">
+                            <i class="fa-solid fa-cloud-arrow-up"></i>
+                            <p>Drag & drop meal photo here</p>
+                            <span>or click to browse files</span>
+                            <input type="file" id="file-input" accept="image/*">
+                        </div>
+
+                        <!-- 2. Camera video feed -->
+                        <video id="webcam-feed" autoplay playsinline style="display: none;"></video>
+
+                        <!-- 3. Result Image Preview -->
+                        <img id="preview-img" class="viewport-img" alt="Meal Preview">
+
+                        <!-- 4. Interactive Bounding Boxes Overlay -->
+                        <div class="svg-overlay-layer" id="bbox-overlay"></div>
+                    </div>
+
+                    <!-- Action buttons -->
+                    <div class="action-bar" style="margin-top: 1.5rem;">
+                        <button class="btn btn-secondary" id="btn-reset" style="display: none;">
+                            <i class="fa-solid fa-rotate-left"></i> Reset
+                        </button>
+                        <button class="btn btn-primary" id="btn-snap" style="display: none;">
+                            <i class="fa-solid fa-camera-retro"></i> Capture & Analyze
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Analysis Results Card -->
+                <div class="card results-card" id="results-card">
+                    <h2 class="card-title">
+                        <i class="fa-solid fa-microscope" style="color: var(--color-accent);"></i>
+                        AI Detection Results
+                    </h2>
+                    <div class="results-layout">
+                        <p style="color: var(--text-secondary); font-size: 0.9rem;" id="results-meta">
+                            Analyzed in 0.42 seconds. Select a prediction to edit portion size:
+                        </p>
+                        
+                        <!-- List of detected items (dishes & ingredients) -->
+                        <div id="predictions-list" style="display: flex; flex-direction: column; gap: 1rem;">
+                            <!-- Dynamically generated items -->
+                        </div>
+
+                        <!-- Log action -->
+                        <button class="btn btn-success" id="btn-log-meal" style="margin-top: 1rem;">
+                            <i class="fa-solid fa-circle-check"></i> Add to Daily Log
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Goals and Daily Log -->
+            <div class="summary-section">
+                <!-- Daily Progress Card -->
+                <div class="card">
+                    <h2 class="card-title">
+                        <i class="fa-solid fa-chart-simple" style="color: var(--color-cal);"></i>
+                        Today's Target Progress
+                    </h2>
+
+                    <!-- Calorie Progress Ring -->
+                    <div class="calorie-circle-container">
+                        <svg class="progress-ring" width="200" height="200">
+                            <!-- Background track -->
+                            <circle
+                                class="progress-ring__circle"
+                                stroke="rgba(255,255,255,0.03)"
+                                stroke-width="12"
+                                fill="transparent"
+                                r="84"
+                                cx="100"
+                                cy="100"
+                            />
+                            <!-- Progress fill -->
+                            <circle
+                                id="calorie-progress-circle"
+                                class="progress-ring__circle"
+                                stroke="var(--color-cal)"
+                                stroke-width="12"
+                                stroke-linecap="round"
+                                fill="transparent"
+                                r="84"
+                                cx="100"
+                                cy="100"
+                                stroke-dasharray="527.78"
+                                stroke-dashoffset="527.78"
+                                style="filter: drop-shadow(0 0 6px rgba(16,185,129,0.3));"
+                            />
+                        </svg>
+                        <div class="calorie-label-center">
+                            <span class="calorie-num" id="logged-calories">0</span>
+                            <span style="color: var(--text-muted); font-size: 0.85rem; font-weight: 500;">/ <span id="target-calories">2000</span> kcal</span>
+                            <span class="calorie-text">Calories</span>
+                        </div>
+                    </div>
+
+                    <!-- Macro progress bars -->
+                    <div class="macro-horizontal-bars" style="margin-top: 1rem;">
+                        <!-- Protein -->
+                        <div class="macro-bar-group">
+                            <div class="macro-bar-header">
+                                <span class="macro-bar-label">
+                                    <span class="dot prot"></span> Protein
+                                </span>
+                                <span class="macro-bar-values">
+                                    <strong id="logged-protein" style="color: var(--text-primary);">0</strong> / <span id="target-protein">130</span> g
+                                </span>
+                            </div>
+                            <div class="macro-progress-bg">
+                                <div class="macro-progress-fill prot" id="bar-protein"></div>
+                            </div>
+                        </div>
+
+                        <!-- Carbs -->
+                        <div class="macro-bar-group">
+                            <div class="macro-bar-header">
+                                <span class="macro-bar-label">
+                                    <span class="dot carb"></span> Carbs
+                                </span>
+                                <span class="macro-bar-values">
+                                    <strong id="logged-carbs" style="color: var(--text-primary);">0</strong> / <span id="target-carbs">250</span> g
+                                </span>
+                            </div>
+                            <div class="macro-progress-bg">
+                                <div class="macro-progress-fill carb" id="bar-carbs"></div>
+                            </div>
+                        </div>
+
+                        <!-- Fats -->
+                        <div class="macro-bar-group">
+                            <div class="macro-bar-header">
+                                <span class="macro-bar-label">
+                                    <span class="dot fat"></span> Fats
+                                </span>
+                                <span class="macro-bar-values">
+                                    <strong id="logged-fats" style="color: var(--text-primary);">0</strong> / <span id="target-fats">70</span> g
+                                </span>
+                            </div>
+                            <div class="macro-progress-bg">
+                                <div class="macro-progress-fill fat" id="bar-fats"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Daily Log Card -->
+                <div class="card timeline-card">
+                    <h2 class="card-title">
+                        <i class="fa-solid fa-receipt" style="color: var(--color-fat);"></i>
+                        Today's Food Log
+                    </h2>
+                    
+                    <div class="timeline-list" id="food-log-list">
+                        <!-- Dynamic items or empty placeholder -->
+                        <div class="empty-timeline-msg" id="empty-log-placeholder">
+                            <i class="fa-solid fa-utensils"></i>
+                            <p>No meals logged today</p>
+                            <span style="font-size: 0.75rem;">Upload or snap a photo of your food to get started!</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    <!-- Application Script -->
+    <script src="app.js"></script>
+</body>
+</html>
