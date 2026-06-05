@@ -13,7 +13,7 @@ function getApiUrl(path) {
     const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
     let base = '';
     if (!isLocal) {
-        base = localStorage.getItem('backend_url') || '';
+        base = localStorage.getItem('backend_url') || 'https://shreyasj033-food-tracker-backend.hf.space';
         if (base && !base.endsWith('/')) {
             base += '/';
         }
@@ -620,7 +620,7 @@ window.deleteMealEntry = deleteMealEntry; // expose to window for HTML click han
 // Initialize connection settings actions
 function initSettings() {
     // Load stored backend URL
-    const storedUrl = localStorage.getItem('backend_url') || '';
+    const storedUrl = localStorage.getItem('backend_url') || 'https://shreyasj033-food-tracker-backend.hf.space';
     backendUrlInput.value = storedUrl;
 
     // Toggle settings visibility
