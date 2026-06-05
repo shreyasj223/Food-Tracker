@@ -1,3 +1,13 @@
+---
+title: Food Tracker Backend
+emoji: 🥗
+colorFrom: green
+colorTo: emerald
+sdk: docker
+app_port: 8000
+pinned: false
+---
+
 # NutriLens AI: Smart Food Photo Calorie & Macro Tracker
 
 NutriLens AI is a fully local, interactive web application that estimates calories and macronutrients (proteins, carbs, fats) from photos of meals or live webcam feeds. It utilizes dual local computer vision models to perform dish classification and ingredient tracking entirely on your machine.
