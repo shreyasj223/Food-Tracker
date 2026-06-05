@@ -10,9 +10,9 @@ with gr.Blocks(title="NutriLens AI System Status") as demo:
     gr.Markdown("API status: **Active**")
     gr.Markdown(f"Serving frontend index dashboard at: [https://{os.environ.get('SPACE_SUBDOMAIN', 'localhost')}.hf.space](https://{os.environ.get('SPACE_SUBDOMAIN', 'localhost')}.hf.space)")
 
-# Mount the Gradio interface onto our FastAPI app under root '/'
-# This lets Hugging Face's SDK embedding discover the Gradio configuration at root routes (e.g. /config)
-app = gr.mount_gradio_app(app, demo, path="/")
+# Mount the Gradio interface onto our FastAPI app under '/gradio'
+# This leaves the root '/' serving our index.html dashboard from frontend/ static files mount!
+app = gr.mount_gradio_app(app, demo, path="/gradio")
 
 if __name__ == "__main__":
     # Hugging Face Spaces automatically configure the PORT env var, defaulting to 7860
