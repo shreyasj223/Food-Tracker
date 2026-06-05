@@ -18,11 +18,29 @@
                     <h1>NutriLens AI</h1>
                     <p style="font-size: 0.8rem; color: var(--text-muted);">Smart Food Photo Calorie & Macro Tracker</p>
                 </div>
-            </div>
-            <div class="date-badge" id="current-date">
-                <i class="fa-regular fa-calendar-days" style="margin-right: 0.5rem;"></i>Tuesday, June 2, 2026
+            <div style="display: flex; gap: 0.75rem; align-items: center;">
+                <div class="date-badge" id="current-date">
+                    <i class="fa-regular fa-calendar-days" style="margin-right: 0.5rem;"></i>Tuesday, June 2, 2026
+                </div>
+                <button id="btn-settings" class="date-badge" style="cursor: pointer; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-primary); transition: background 0.2s ease;">
+                    <i class="fa-solid fa-gear"></i>
+                </button>
             </div>
         </header>
+
+        <!-- Settings Panel -->
+        <div id="settings-panel" class="card" style="display: none; margin-bottom: 2rem; border-color: var(--color-accent); animation: fadeIn 0.3s ease;">
+            <h3 style="margin-bottom: 0.75rem; font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fa-solid fa-gears" style="color: var(--color-accent);"></i> Connection Settings
+            </h3>
+            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1rem;">
+                If your backend is running remotely (e.g. via Cloudflare Tunnel), enter the public URL below. Leave blank to run locally (http://localhost:8000):
+            </p>
+            <div style="display: flex; gap: 0.75rem; align-items: stretch;">
+                <input type="text" id="backend-url-input" placeholder="e.g. https://your-tunnel-subdomain.trycloudflare.com" style="flex: 1; padding: 0.75rem 1rem; border-radius: 0.5rem; border: 1px solid var(--border-color); background: rgba(0,0,0,0.3); color: white; font-family: var(--font-sans); outline: none;">
+                <button id="btn-save-settings" class="btn btn-primary" style="flex: 0; white-space: nowrap; padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-size: 0.9rem;">Save Settings</button>
+            </div>
+        </div>
 
         <!-- Main Content Grid -->
         <div class="dashboard-grid">

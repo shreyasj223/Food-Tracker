@@ -8,6 +8,21 @@ const TARGETS = {
 
 const CIRCUMFERENCE = 2 * Math.PI * 84; // Radius of SVG circle is 84
 
+// Resolve the backend endpoint dynamically for local/remote hosting
+function getApiUrl(path) {
+    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    let base = '';
+    if (!isLocal) {
+        base = localStorage.getItem('backend_url') || '';
+        if (base && !base.endsWith('/')) {
+            base += '/';
+        }
+    }
+    // Remove leading slash if any
+    const cleanPath = path.startsWith('/') ? path.substring(1) : path;
+    return base + cleanPath;
+}
+
 // State variables
 let activeTab = 'upload';
 let stream = null;
@@ -33,6 +48,12 @@ const predictionsList = document.getElementById('predictions-list');
 const btnLogMeal = document.getElementById('btn-log-meal');
 const viewport = document.getElementById('viewport');
 
+// Settings Elements
+const btnSettings = document.getElementById('btn-settings');
+const settingsPanel = document.getElementById('settings-panel');
+const backendUrlInput = document.getElementById('backend-url-input');
+const btnSaveSettings = document.getElementById('btn-save-settings');
+
 // Progress Indicator Elements
 const calorieCircle = document.getElementById('calorie-progress-circle');
 const loggedCalories = document.getElementById('logged-calories');
@@ -50,6 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initTabs();
     initUpload();
     initCameraControls();
+    initSettings();
     initDate();
     refreshData();
 });
@@ -202,7 +224,7 @@ async function uploadAndAnalyze(file) {
     resetOverlays();
     
     try {
-        const res = await fetch('/api/analyze', {
+        const res = await fetch(getApiUrl('/api/analyze'), {
             method: 'POST',
             body: formData
         });
@@ -293,7 +315,7 @@ function renderAnalysisResults(data) {
     
     // Set preview image back to show the relative paths from the backend (so it serves uploaded images correctly)
     if (data.image_url) {
-        previewImg.src = data.image_url;
+        previewImg.src = getApiUrl(data.image_url);
     }
     
     renderPredictionList();
@@ -460,7 +482,7 @@ btnLogMeal.addEventListener('click', async () => {
     showLoader("Logging meal to dashboard...");
     
     try {
-        const res = await fetch('/api/log', {
+        const res = await fetch(getApiUrl('/api/log'), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(logPayload)
@@ -484,8 +506,8 @@ btnLogMeal.addEventListener('click', async () => {
 async function refreshData() {
     try {
         const [summaryRes, mealsRes] = await Promise.all([
-            fetch('/api/summary'),
-            fetch('/api/meals')
+            fetch(getApiUrl('/api/summary')),
+            fetch(getApiUrl('/api/meals'))
         ]);
         
         if (!summaryRes.ok || !mealsRes.ok) throw new Error("Failed to sync dashboard metrics");
@@ -581,7 +603,7 @@ async function deleteMealEntry(id) {
     if (!confirm("Are you sure you want to delete this log entry?")) return;
     
     try {
-        const res = await fetch(`/api/meals/${id}`, {
+        const res = await fetch(getApiUrl(`/api/meals/${id}`), {
             method: 'DELETE'
         });
         
@@ -594,3 +616,36 @@ async function deleteMealEntry(id) {
     }
 }
 window.deleteMealEntry = deleteMealEntry; // expose to window for HTML click handlers
+
+// Initialize connection settings actions
+function initSettings() {
+    // Load stored backend URL
+    const storedUrl = localStorage.getItem('backend_url') || '';
+    backendUrlInput.value = storedUrl;
+
+    // Toggle settings visibility
+    btnSettings.addEventListener('click', () => {
+        const isHidden = settingsPanel.style.display === 'none';
+        settingsPanel.style.display = isHidden ? 'block' : 'none';
+    });
+
+    // Save settings action
+    btnSaveSettings.addEventListener('click', () => {
+        let urlVal = backendUrlInput.value.trim();
+        
+        if (urlVal) {
+            // Automatically clean protocol or formatting if needed
+            if (!urlVal.startsWith('http://') && !urlVal.startsWith('https://')) {
+                urlVal = 'https://' + urlVal;
+            }
+        }
+        
+        localStorage.setItem('backend_url', urlVal);
+        backendUrlInput.value = urlVal;
+        settingsPanel.style.display = 'none';
+        
+        // Flash save visual feedback
+        alert("Backend URL saved successfully! Syncing dashboard data...");
+        refreshData();
+    });
+}
