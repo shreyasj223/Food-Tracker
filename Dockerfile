@@ -19,11 +19,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Install uv for fast package installation
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
-# Copy dependency configuration
-COPY pyproject.toml .
-
 # Install dependencies directly into the system environment (since we are inside Docker)
-RUN uv pip install --system --no-cache -r pyproject.toml
+RUN uv pip install --system --no-cache fastapi uvicorn python-multipart ultralytics transformers torch torchvision pillow numpy
 
 # Copy project files
 COPY . .
