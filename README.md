@@ -2,7 +2,7 @@
 title: Food Tracker Backend
 emoji: 🥗
 colorFrom: green
-colorTo: emerald
+colorTo: green
 sdk: docker
 app_port: 8000
 pinned: false
