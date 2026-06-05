@@ -159,11 +159,13 @@ async def analyze_food_image(file: UploadFile = File(...)):
 # Serve uploads folder for visual feedback
 app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
-# Serve frontend at root
-if os.path.exists(FRONTEND_DIR):
-    app.mount("/", StaticFiles(directory=FRONTEND_DIR, html=True), name="frontend")
-else:
-    print(f"Warning: Frontend directory '{FRONTEND_DIR}' does not exist yet. Static files will not be served.")
+# Serve frontend at root if not running in Hugging Face Space
+if "SPACE_ID" not in os.environ:
+    if os.path.exists(FRONTEND_DIR):
+        app.mount("/", StaticFiles(directory=FRONTEND_DIR, html=True), name="frontend")
+    else:
+        print(f"Warning: Frontend directory '{FRONTEND_DIR}' does not exist yet. Static files will not be served.")
+
 
 if __name__ == "__main__":
     import uvicorn
