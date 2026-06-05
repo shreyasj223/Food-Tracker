@@ -28,8 +28,6 @@ RUN uv pip install --system --no-cache -r pyproject.toml
 # Copy project files
 COPY . .
 
-# Download and cache the ML models during build-time so the application boots instantly on startup
-RUN python -c "from backend.cv_engine import load_models; load_models()"
 
 # Expose port (Render overrides this with $PORT env var)
 EXPOSE 8000
